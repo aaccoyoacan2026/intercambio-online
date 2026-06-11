@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intercambio Online 🎁</title>
+    <style>
+        :root {
+            --primary: #1e555c;
+            --secondary: #f4d35e;
+            --dark: #0d3b66;
+            --light: #faf0ca;
+            --bg: #ee964b;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background-color: #f7f9fa; color: var(--dark); padding: 15px; display: flex; justify-content: center; }
+        .container { width: 100%; max-width: 450px; background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1, h2 { text-align: center; color: var(--primary); margin-bottom: 15px; }
+        .card { background: #f8f9fa; border: 1px solid #e9ecef; padding: 15px; border-radius: 10px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9em; }
+        input[type="text"] { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 16px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 5px; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-secondary { background: var(--bg); color: white; }
+        .btn-success { background: #2a9d8f; color: white; }
+        .hidden { display: none !important; }
+        .room-code { font-size: 24px; font-weight: bold; text-align: center; color: var(--bg); letter-spacing: 2px; margin: 10px 0; }
+        .badge { display: inline-block; padding: 3px 8px; background: #e2e8f0; border-radius: 12px; font-size: 0.8em; margin: 2px; }
+        .secret-box { background: #fff3cd; border: 1px solid #ffeeba; color: #856404; padding: 15px; border-radius: 8px; text-align: center; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎁 Intercambio Online</h1>
+    <p style="text-align: center; font-size: 0.9em; color: #666; margin-bottom: 15px;">A distancia y en tiempo real</p>
+
+    <div id="screen-entry">
+        <div class="card">
+            <h3>Opción A: Crear una Sala</h3>
+            <p style="font-size: 0.85em; color: #666; margin-bottom: 10px;">Tú organizarás el sorteo.</p>
+            <button class="btn-primary" onclick="createRoom()">Crear Nueva Sala</button>
+        </div>
+        <div class="card">
+            <h3>Opción B: Unirse a Sala</h3>
+            <div class="form-group">
+                <input type="text" id="join-code" placeholder="Código de 5 dígitos" style="text-transform: uppercase; text-align: center;">
+            </div>
+            <button class="btn-secondary" onclick="joinRoom()">Ingresar a la Sala</button>
+        </div>
+    </div>
+
+    <div id="screen-register" class="hidden">
+        <h3 style="margin-bottom: 10px;">Sala Conectada: <span id="display-room-id" style="color: var(--bg);"></span></h3>
+        <div class="card">
+            <div class="form-group">
+                <label>Tu Nombre Completo o Apodo:</label>
+                <input type="text" id="user-name" placeholder="Ej. Carlos López">
+            </div>
+            <div class="form-group">
+                <label>Tus 3 Opciones de Regalo:</label>
+                <input type="text" id="g1" placeholder="Opción 1" style="margin-bottom:5px;">
+                <input type="text" id="g2" placeholder="Opción 2" style="margin-bottom:5px;">
+                <input type="text" id="g3" placeholder="Opción 3">
+            </div>
+            <button class="btn-success" id="btn-ready" onclick="sendRegistration()">Listo, Unirme al Intercambio</button>
+        </div>
+    </div>
+
+    <div id="screen-lobby" class="hidden">
+        <h2>Sala: <span id="lobby-room-code"></span></h2>
+        <p style="text-align: center; font-size: 0.9em; margin-bottom: 15px;">Comparte este código con tus amigos.</p>
+        
+        <div class="card">
+            <h4>Participantes Unidos (<span id="participant-count">0</span>):</h4>
+            <div id="lobby-list" style="margin-top: 10px;">
+                </div>
+        </div>
+
+        <div id="admin-controls" class="hidden">
+            <button class="btn-primary" id="btn-trigger-draw" onclick="executeDraw()" disabled>¡Realizar Sorteo Ahora!</button>
+            <p style="font-size: 0.8em; color: red; text-align: center; margin-top: 5px;">Se requieren mínimo 3 personas.</p>
+        </div>
+        
+        <div id="user-waiting-msg" class="card style text-align: center;">
+            ⏳ Esperando a que el administrador realice el sorteo...
+        </div>
+    </div>
+
+    <div id="screen-result" class="hidden">
+        <h2>🎉 ¡Sorteo Realizado!</h2>
+        <div class="card" style="text-align: center;">
+            <p>Hola <strong id="lbl-viewer-name"></strong>, tu asignación está lista.</p>
+            
+            <div id="secret-zone" class="hidden secret-box">
+                <p>Te tocó regalar a:</p>
+                <h2 id="assigned-friend" style="margin: 10px 0; color: #1e555c;">-</h2>
+                <p><strong>Su lista de deseos:</strong></p>
+                <p id="assigned-wishes" style="font-style: italic; margin-top: 5px;">-</p>
+            </div>
+
+            <button class="btn-primary" id="btn-reveal" onclick="toggleSecret()" style="margin-top: 15px;">Ver mi amigo secreto</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/piehost-js@4.0.5/dist/piehost.js"></script>
+
+<script>
+    let roomID = "";
+    let myName = "";
+    let isAdmin = false;
+    let participants = []; // Lista local del admin [{name, wishes, clientId}]
+    let piehost;
+    let channel;
+
+    // Configuración de servidor público de pruebas (PieHost demo keys)
+    const PIE_HOST_API_KEY = "o79D66g8I6Uo7fR9G29BqR3y6IbbK5p6hba9I9w9"; 
+    const PIE_HOST_INSTANCE = "9"; 
+
+    function initWebSocket(room) {
+        piehost = new PieHost.Connection({
+            apiKey: PIE_HOST_API_KEY,
+            id: PIE_HOST_INSTANCE
+        });
+
+        channel = piehost.join(room);
+
+        channel.on('onData', (data) => {
+            handleIncomingMessage(data);
+        });
+    }
+
+    function createRoom() {
+        roomID = Math.floor(10000 + Math.random() * 90000).toString(); // Código de 5 dígitos
+        isAdmin = true;
+        document.getElementById('screen-entry').classList.add('hidden');
+        document.getElementById('screen-register').classList.remove('hidden');
+        document.getElementById('display-room-id').innerText = roomID;
+        initWebSocket(roomID);
+    }
+
+    function joinRoom() {
+        const inputCode = document.getElementById('join-code').value.trim().toUpperCase();
+        if(inputCode.length !== 5) {
+            alert("Por favor introduce un código válido de 5 dígitos.");
+            return;
+        }
+        roomID = inputCode;
+        isAdmin = false;
+        document.getElementById('screen-entry').classList.add('hidden');
+        document.getElementById('screen-register').classList.remove('hidden');
+        document.getElementById('display-room-id').innerText = roomID;
+        initWebSocket(roomID);
+    }
+
+    function sendRegistration() {
+        myName = document.getElementById('user-name').value.trim();
+        const g1 = document.getElementById('g1').value.trim();
+        const g2 = document.getElementById('g2').value.trim();
+        const g3 = document.getElementById('g3').value.trim();
+
+        if(!myName) {
+            alert("Por favor ingresa tu nombre.");
+            return;
+        }
+
+        let wishesArr = [g1, g2, g3].filter(g => g !== "");
+        let wishes = wishesArr.length > 0 ? wishesArr.join(", ") : "Cualquier detalle es bueno";
+
+        // Si soy admin, me auto-agrego a la lista local primero
+        if(isAdmin) {
+            participants.push({ name: myName, wishes: wishes, clientId: 'admin' });
+            updateLobbyUI();
+        } else {
+            // Si soy participante, le mando mis datos al admin
+            channel.send({
+                type: "REGISTER_USER",
+                name: myName,
+                wishes: wishes
+            });
+        }
+
+        // Pasar al Lobby de espera
+        document.getElementById('screen-register').classList.add('hidden');
+        document.getElementById('screen-lobby').classList.remove('hidden');
+        document.getElementById('lobby-room-code').innerText = roomID;
+
+        if(isAdmin) {
+            document.getElementById('admin-controls').classList.remove('hidden');
+            document.getElementById('user-waiting-msg').classList.add('hidden');
+        }
+    }
+
+    function handleIncomingMessage(msg) {
+        // LÓGICA DEL ADMINISTRADOR
+        if (isAdmin && msg.type === "REGISTER_USER") {
+            // Verificar si ya existe ese nombre
+            if(!participants.some(p => p.name.toLowerCase() === msg.name.toLowerCase())) {
+                participants.push({ name: msg.name, wishes: msg.wishes });
+                updateLobbyUI();
+            }
+            // Sincronizar la lista actual con todos los participantes de la sala
+            channel.send({
+                type: "SYNC_LOBBY",
+                list: participants.map(p => p.name)
+            });
+        }
+
+        // LÓGICA DE LOS PARTICIPANTES
+        if (!isAdmin && msg.type === "SYNC_LOBBY") {
+            const listContainer = document.getElementById('lobby-list');
+            listContainer.innerHTML = "";
+            msg.list.forEach(name => {
+                listContainer.innerHTML += `<span class="badge">👤 ${name}</span>`;
+            });
+            document.getElementById('participant-count').innerText = msg.list.length;
+        }
+
+        // CUANDO EL ADMIN DICTA LOS RESULTADOS DEL SORTEO
+        if (msg.type === "DRAW_COMPLETED") {
+            // Cada celular busca si hay un resultado destinado a su nombre de usuario
+            const myResult = msg.results.find(r => r.giver.toLowerCase() === myName.toLowerCase());
+            if(myResult) {
+                document.getElementById('screen-lobby').classList.add('hidden');
+                document.getElementById('screen-result').classList.remove('hidden');
+                document.getElementById('lbl-viewer-name').innerText = myName;
+                document.getElementById('assigned-friend').innerText = myResult.recipient;
+                document.getElementById('assigned-wishes').innerText = myResult.wishes;
+            }
+        }
+    }
+
+    function updateLobbyUI() {
+        const listContainer = document.getElementById('lobby-list');
+        listContainer.innerHTML = "";
+        participants.forEach(p => {
+            listContainer.innerHTML += `<span class="badge">👤 ${p.name}</span>`;
+        });
+        document.getElementById('participant-count').innerText = participants.length;
+
+        const btnDraw = document.getElementById('btn-trigger-draw');
+        if(participants.length >= 3) {
+            btnDraw.disabled = false;
+        } else {
+            btnDraw.disabled = true;
+        }
+    }
+
+    function executeDraw() {
+        if(participants.length < 3) return;
+
+        let validDraw = false;
+        let givers = [...participants];
+        let recipients = [...participants];
+        let attempts = 0;
+
+        while (!validDraw && attempts < 500) {
+            attempts++;
+            // Mezclar receptores
+            for (let i = recipients.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [recipients[i], recipients[j]] = [recipients[j], recipients[i]];
+            }
+            validDraw = givers.every((giver, idx) => giver.name !== recipients[idx].name);
+        }
+
+        if (!validDraw) {
+            alert("Error en el algoritmo de barajado. Inténtalo de nuevo.");
+            return;
+        }
+
+        // Crear la estructura de resultados finales
+        const finalResults = givers.map((giver, idx) => ({
+            giver: giver.name,
+            recipient: recipients[idx].name,
+            wishes: recipients[idx].wishes
+        }));
+
+        // Mandar el paquete de datos a todos los conectados
+        channel.send({
+            type: "DRAW_COMPLETED",
+            results: finalResults
+        });
+    }
+
+    let revealed = false;
+    function toggleSecret() {
+        const zone = document.getElementById('secret-zone');
+        const btn = document.getElementById('btn-reveal');
+        if(!revealed) {
+            zone.classList.remove('hidden');
+            btn.innerText = "Ocultar Información";
+            revealed = true;
+        } else {
+            zone.classList.add('hidden');
+            btn.innerText = "Ver mi amigo secreto";
+            revealed = false;
+        }
+    }
+</script>
+</body>
+</html>
