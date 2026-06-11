@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎁 Intercambio de Regalos Online</title>
+<style>
+  :root{
+    --pino:#0f5132; --pino2:#157347;
+    --rojo:#b02a37; --rojo2:#dc3545;
+    --oro:#f4c542; --oro2:#e0a800;
+    --crema:#fff8ec; --tinta:#1d2b25;
+    --gris:#6c757d; --linea:#e7dfce;
+    --sombra:0 10px 30px rgba(0,0,0,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;font-family:'Segoe UI',system-ui,-apple-system,sans-serif}
+  body{
+    min-height:100vh;color:var(--tinta);
+    background:radial-gradient(1200px 600px at 50% -10%,#1c6b41 0%,#0f5132 45%,#0a3623 100%);
+    display:flex;align-items:flex-start;justify-content:center;padding:24px 14px 60px;
+    position:relative;overflow-x:hidden;
+  }
+  /* nieve */
+  .snow{position:fixed;inset:0;pointer-events:none;z-index:0}
+  .flake{position:absolute;top:-10px;color:#ffffff;opacity:.8;animation:fall linear infinite}
+  @keyframes fall{to{transform:translateY(105vh) rotate(360deg)}}
+
+  .wrap{width:100%;max-width:480px;position:relative;z-index:2}
+  .brand{text-align:center;color:#fff;margin-bottom:16px}
+  .brand h1{font-size:1.7rem;letter-spacing:.5px;text-shadow:0 2px 8px rgba(0,0,0,.35)}
+  .brand p{opacity:.85;font-size:.9rem;margin-top:4px}
+
+  .card{
+    background:var(--crema);border-radius:20px;box-shadow:var(--sombra);
+    padding:22px;border:1px solid rgba(255,255,255,.4);position:relative;overflow:hidden;
+  }
+  .card::before{content:"";position:absolute;top:0;left:0;right:0;height:6px;
+    background:linear-gradient(90deg,var(--rojo),var(--oro),var(--pino2),var(--oro),var(--rojo));
+    background-size:200% 100%;animation:shimmer 6s linear infinite}
+  @keyframes shimmer{to{background-position:200% 0}}
+
+  h2{color:var(--pino);font-size:1.25rem;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .sub{color:var(--gris);font-size:.88rem;margin-bottom:16px;line-height:1.4}
+
+  .field{margin-bottom:14px}
+  label{display:block;font-weight:600;font-size:.85rem;margin-bottom:6px;color:var(--pino)}
+  input[type=text]{
+    width:100%;padding:13px 14px;border:1.5px solid var(--linea);border-radius:12px;
+    font-size:16px;background:#fff;transition:.15s;
+  }
+  input[type=text]:focus{outline:none;border-color:var(--pino2);box-shadow:0 0 0 3px rgba(21,115,71,.15)}
+  .gift-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+  .gift-row span{font-size:1.1rem}
+
+  .btn{display:block;width:100%;padding:14px;border:none;border-radius:12px;font-size:1rem;
+    font-weight:700;cursor:pointer;transition:transform .1s,filter .15s;margin-top:6px}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-pino{background:linear-gradient(135deg,var(--pino2),var(--pino));color:#fff}
+  .btn-rojo{background:linear-gradient(135deg,var(--rojo2),var(--rojo));color:#fff}
+  .btn-oro{background:linear-gradient(135deg,var(--oro),var(--oro2));color:#3a2c00}
+  .btn-ghost{background:transparent;color:var(--pino);border:1.5px solid var(--linea)}
+  .btn:hover:not(:disabled){filter:brightness(1.06)}
+
+  .divisor{display:flex;align-items:center;gap:12px;color:var(--gris);margin:18px 0;font-size:.8rem}
+  .divisor::before,.divisor::after{content:"";flex:1;height:1px;background:var(--linea)}
+
+  .codebox{text-align:center;background:#fff;border:2px dashed var(--oro2);border-radius:14px;
+    padding:14px;margin:6px 0 14px}
+  .codebox .lbl{font-size:.75rem;color:var(--gris);text-transform:uppercase;letter-spacing:1px}
+  .codebox .val{font-size:2.2rem;font-weight:800;color:var(--rojo);letter-spacing:6px;font-variant-numeric:tabular-nums}
+  .copy{font-size:.8rem;color:var(--pino2);background:none;border:none;cursor:pointer;text-decoration:underline}
+
+  .people{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--linea);
+    border-radius:30px;padding:7px 13px;font-size:.9rem;font-weight:600;box-shadow:0 2px 6px rgba(0,0,0,.05)}
+  .chip.me{background:var(--pino);color:#fff;border-color:var(--pino)}
+  .count{display:inline-block;min-width:26px;text-align:center;background:var(--oro);color:#3a2c00;
+    border-radius:20px;padding:1px 9px;font-weight:800;font-size:.85rem}
+
+  .wait{background:#fff;border:1px solid var(--linea);border-radius:14px;padding:16px;text-align:center;
+    color:var(--gris);font-size:.92rem;margin-top:14px}
+  .dot{display:inline-block;animation:blink 1.4s infinite both}
+  .dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+  @keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+
+  .reveal{background:linear-gradient(160deg,#fff,#fff8ec);border:2px solid var(--oro);border-radius:18px;
+    padding:24px;text-align:center;margin-top:10px;position:relative}
+  .reveal .who{font-size:2rem;font-weight:800;color:var(--rojo);margin:10px 0;line-height:1.1}
+  .wishes{list-style:none;text-align:left;margin-top:14px}
+  .wishes li{background:#fff;border:1px solid var(--linea);border-radius:10px;padding:11px 14px;
+    margin-bottom:8px;font-size:.95rem;display:flex;gap:10px;align-items:center}
+  .wishes li b{color:var(--oro2)}
+
+  .alert{background:#fff3cd;border:1px solid #ffe69c;color:#7a5b00;border-radius:12px;
+    padding:14px;font-size:.85rem;line-height:1.5;margin-bottom:16px}
+  .alert code{background:#fff;padding:1px 6px;border-radius:5px;border:1px solid #ffe69c}
+  .hidden{display:none!important}
+  .err{color:var(--rojo2);font-size:.82rem;margin-top:6px;text-align:center;min-height:18px}
+  .foot{text-align:center;color:rgba(255,255,255,.7);font-size:.78rem;margin-top:18px}
+  .spin{width:34px;height:34px;border:4px solid rgba(15,81,50,.2);border-top-color:var(--pino);
+    border-radius:50%;animation:rot 1s linear infinite;margin:10px auto}
+  @keyframes rot{to{transform:rotate(360deg)}}
+
+  /* confetti */
+  .confetti{position:fixed;width:10px;height:14px;top:-20px;z-index:5;animation:drop linear forwards}
+  @keyframes drop{to{transform:translateY(110vh) rotate(720deg);opacity:.9}}
+</style>
+</head>
+<body>
+<div class="snow" id="snow"></div>
+
+<div class="wrap">
+  <div class="brand">
+    <h1>🎄 Intercambio de Regalos</h1>
+    <p>Sorteo en vivo · cada quien desde su celular</p>
+  </div>
+
+  <div class="card">
+
+    <!-- AVISO DE CONFIGURACIÓN -->
+    <div id="setupWarn" class="alert hidden">
+      ⚠️ <b>Falta configurar Firebase.</b> Abre <code>index.html</code> y pega tus credenciales en el bloque
+      <code>firebaseConfig</code> (cerca del final). Encuentra los pasos en <code>README.md</code>.
+    </div>
+
+    <!-- PANTALLA: INICIO -->
+    <section id="scrInicio">
+      <h2>🎅 ¡Bienvenido!</h2>
+      <p class="sub">Crea una sala y comparte el código, o únete con el código que te pasaron.</p>
+      <button class="btn btn-pino" onclick="crearSala()">➕ Crear nueva sala</button>
+      <div class="divisor">o</div>
+      <div class="field">
+        <label>¿Tienes un código?</label>
+        <input id="inCodigo" type="text" inputmode="numeric" maxlength="5" placeholder="Código de 5 dígitos"
+               style="text-align:center;letter-spacing:6px;font-size:1.3rem;font-weight:700">
+      </div>
+      <button class="btn btn-oro" onclick="unirseSala()">🚪 Unirme a la sala</button>
+      <div id="errInicio" class="err"></div>
+    </section>
+
+    <!-- PANTALLA: REGISTRO -->
+    <section id="scrRegistro" class="hidden">
+      <h2>📝 Tus datos</h2>
+      <div class="codebox">
+        <div class="lbl">Sala</div>
+        <div class="val" id="regCodigo">—</div>
+      </div>
+      <div class="field">
+        <label>Tu nombre o apodo</label>
+        <input id="inNombre" type="text" placeholder="Ej. Carlos López" maxlength="30">
+      </div>
+      <div class="field">
+        <label>3 regalos que te gustaría recibir</label>
+        <div class="gift-row"><span>🎁</span><input id="inG1" type="text" placeholder="Opción 1" maxlength="60"></div>
+        <div class="gift-row"><span>🎁</span><input id="inG2" type="text" placeholder="Opción 2" maxlength="60"></div>
+        <div class="gift-row"><span>🎁</span><input id="inG3" type="text" placeholder="Opción 3" maxlength="60"></div>
+      </div>
+      <button class="btn btn-pino" id="btnEntrar" onclick="registrarme()">✅ Listo, entrar al intercambio</button>
+      <div id="errRegistro" class="err"></div>
+    </section>
+
+    <!-- PANTALLA: SALA DE ESPERA -->
+    <section id="scrLobby" class="hidden">
+      <h2>👥 Sala de espera</h2>
+      <div class="codebox">
+        <div class="lbl">Comparte este código</div>
+        <div class="val" id="lobbyCodigo">—</div>
+        <button class="copy" onclick="copiarCodigo()">📋 Copiar código</button>
+      </div>
+      <div style="margin-bottom:6px"><b>Participantes</b> <span class="count" id="lobbyCount">0</span></div>
+      <div class="people" id="lobbyLista"></div>
+
+      <div id="adminZona" class="hidden">
+        <button class="btn btn-rojo" id="btnSorteo" onclick="hacerSorteo()" disabled style="margin-top:18px">
+          🎲 ¡Realizar sorteo ahora!
+        </button>
+        <p class="sub" style="text-align:center;margin-top:8px">Mínimo 3 participantes para sortear.</p>
+      </div>
+      <div id="esperaZona" class="wait" style="margin-top:18px">
+        ⏳ Esperando a que el organizador realice el sorteo<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span>
+      </div>
+    </section>
+
+    <!-- PANTALLA: RESULTADO -->
+    <section id="scrResultado" class="hidden">
+      <h2>🎉 ¡Sorteo realizado!</h2>
+      <p class="sub">Hola <b id="resNombre">—</b>, tu asignación es secreta. Tócala para descubrirla.</p>
+      <div id="preReveal">
+        <button class="btn btn-oro" onclick="revelar()" style="font-size:1.1rem;padding:18px">
+          🎁 Descubrir a quién le regalo
+        </button>
+      </div>
+      <div id="revealBox" class="reveal hidden">
+        <div style="font-size:.85rem;color:var(--gris)">Te toca regalarle a</div>
+        <div class="who" id="resAmigo">—</div>
+        <div style="font-size:.85rem;color:var(--pino);font-weight:700">Su lista de deseos</div>
+        <ul class="wishes" id="resDeseos"></ul>
+      </div>
+    </section>
+
+  </div>
+  <div class="foot">Hecho con 🎁 · funciona en cualquier dispositivo</div>
+</div>
+
+<!-- ===================== FIREBASE ===================== -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, set, get, update, onValue, onDisconnect, child }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+/* {
+  apiKey: "AIzaSyDb6cumv0gO10KMRj-zZDrLUhl9bkqgDi0",
+  authDomain: "intercambio-ba18e.firebaseapp.com",
+  databaseURL: "https://intercambio-ba18e-default-rtdb.firebaseio.com",
+  projectId: "intercambio-ba18e",
+  storageBucket: "intercambio-ba18e.firebasestorage.app",
+  messagingSenderId: "539172446000",
+  appId: "1:539172446000:web:bccbee60d098fa92a672f5"
+} */
+const firebaseConfig = {
+  apiKey: "AIzaSyDb6cumv0gO10KMRj-zZDrLUhl9bkqgDi0",
+  authDomain: "intercambio-ba18e.firebaseapp.com",
+  databaseURL: "https://intercambio-ba18e-default-rtdb.firebaseio.com",
+  projectId: "intercambio-ba18e",
+  storageBucket: "intercambio-ba18e.firebasestorage.app",
+  messagingSenderId: "539172446000",
+  appId: "1:539172446000:web:bccbee60d098fa92a672f5"
+};
+/* ════════════════════════════════════════════════════════════ */
+
+const SIN_CONFIGURAR = firebaseConfig.apiKey === "TU_API_KEY";
+let db = null;
+if (!SIN_CONFIGURAR) {
+  try { db = getDatabase(initializeApp(firebaseConfig)); }
+  catch(e){ console.error(e); }
+} else {
+  document.getElementById('setupWarn').classList.remove('hidden');
+}
+
+/* ---------- Estado ---------- */
+const miUid = (crypto.randomUUID ? crypto.randomUUID() : 'u'+Date.now()+Math.random());
+let sala = "";
+let soyAdmin = false;
+let miNombre = "";
+const $ = id => document.getElementById(id);
+const ver = id => { ['scrInicio','scrRegistro','scrLobby','scrResultado'].forEach(s=>$(s).classList.add('hidden')); $(id).classList.remove('hidden'); };
+
+/* ---------- Crear / Unirse ---------- */
+async function crearSala(){
+  if(SIN_CONFIGURAR){ alert("Primero configura Firebase (revisa el aviso amarillo y el README)."); return; }
+  $('errInicio').textContent = "";
+  let codigo;
+  // generar código no usado
+  for(let i=0;i<8;i++){
+    codigo = String(Math.floor(10000+Math.random()*90000));
+    const snap = await get(ref(db,'salas/'+codigo+'/meta'));
+    if(!snap.exists()) break;
+  }
+  try{
+    await set(ref(db,'salas/'+codigo+'/meta'), { estado:'lobby', adminUid:miUid, creada:Date.now() });
+  }catch(e){ $('errInicio').textContent = "No se pudo conectar. Revisa las reglas de la base de datos."; return; }
+  sala = codigo; soyAdmin = true;
+  $('regCodigo').textContent = codigo;
+  ver('scrRegistro');
+}
+
+async function unirseSala(){
+  if(SIN_CONFIGURAR){ alert("Primero configura Firebase (revisa el aviso amarillo y el README)."); return; }
+  $('errInicio').textContent = "";
+  const codigo = ($('inCodigo').value||"").trim();
+  if(!/^\d{5}$/.test(codigo)){ $('errInicio').textContent="Introduce un código válido de 5 dígitos."; return; }
+  const snap = await get(ref(db,'salas/'+codigo+'/meta'));
+  if(!snap.exists()){ $('errInicio').textContent="Esa sala no existe. Verifica el código."; return; }
+  if(snap.val().estado === 'sorteado'){ $('errInicio').textContent="El sorteo de esa sala ya se realizó."; return; }
+  sala = codigo; soyAdmin = false;
+  $('regCodigo').textContent = codigo;
+  ver('scrRegistro');
+}
+
+/* ---------- Registro ---------- */
+async function registrarme(){
+  $('errRegistro').textContent = "";
+  const nombre = ($('inNombre').value||"").trim();
+  if(!nombre){ $('errRegistro').textContent="Escribe tu nombre."; return; }
+  const deseos = [$('inG1').value, $('inG2').value, $('inG3').value]
+                  .map(s=>(s||"").trim()).filter(Boolean);
+  if(deseos.length===0) deseos.push("Cualquier detalle me hará feliz 🙂");
+
+  // nombre duplicado?
+  const ps = await get(ref(db,'salas/'+sala+'/participantes'));
+  if(ps.exists()){
+    const dup = Object.values(ps.val()).some(p=>p.uid!==miUid && (p.nombre||"").toLowerCase()===nombre.toLowerCase());
+    if(dup){ $('errRegistro').textContent="Ya hay alguien con ese nombre. Usa otro o un apodo."; return; }
+  }
+
+  miNombre = nombre;
+  $('btnEntrar').disabled = true;
+  try{
+    const nodo = ref(db,'salas/'+sala+'/participantes/'+miUid);
+    await set(nodo, { uid:miUid, nombre, deseos });
+    onDisconnect(nodo).remove();  // si se va antes del sorteo, se libera (solo en lobby)
+  }catch(e){
+    $('errRegistro').textContent="No se pudo guardar. Revisa tu conexión.";
+    $('btnEntrar').disabled = false; return;
+  }
+  entrarLobby();
+}
+
+/* ---------- Lobby ---------- */
+function entrarLobby(){
+  $('lobbyCodigo').textContent = sala;
+  if(soyAdmin){ $('adminZona').classList.remove('hidden'); $('esperaZona').classList.add('hidden'); }
+  ver('scrLobby');
+
+  // escuchar participantes
+  onValue(ref(db,'salas/'+sala+'/participantes'), snap=>{
+    const data = snap.val()||{};
+    const lista = Object.values(data);
+    const cont = $('lobbyLista'); cont.innerHTML="";
+    lista.forEach(p=>{
+      const c=document.createElement('span');
+      c.className='chip'+(p.uid===miUid?' me':'');
+      c.textContent='👤 '+p.nombre;
+      cont.appendChild(c);
+    });
+    $('lobbyCount').textContent = lista.length;
+    if(soyAdmin){
+      const btn=$('btnSorteo');
+      btn.disabled = lista.length < 3;
+      btn.textContent = lista.length<3 ? `🎲 Faltan ${3-lista.length} para sortear` : '🎲 ¡Realizar sorteo ahora!';
+    }
+  });
+
+  // escuchar estado / mi asignación
+  onValue(ref(db,'salas/'+sala+'/meta/estado'), snap=>{
+    if(snap.val()==='sorteado') escucharMiAsignacion();
+  });
+}
+
+function escucharMiAsignacion(){
+  onValue(ref(db,'salas/'+sala+'/asignaciones/'+miUid), snap=>{
+    const a = snap.val();
+    if(a){ mostrarResultado(a); }
+  });
+}
+
+/* ---------- Sorteo (solo admin) ---------- */
+async function hacerSorteo(){
+  $('btnSorteo').disabled = true;
+  const ps = await get(ref(db,'salas/'+sala+'/participantes'));
+  const gente = Object.values(ps.val()||{});
+  if(gente.length<3){ $('btnSorteo').disabled=false; return; }
+
+  const receptores = derangement(gente);
+  if(!receptores){ alert("No se pudo generar el sorteo, inténtalo de nuevo."); $('btnSorteo').disabled=false; return; }
+
+  // escribir una asignación privada por cada uid
+  const payload = {};
+  gente.forEach((g,i)=>{
+    const r = receptores[i];
+    payload['asignaciones/'+g.uid] = { paraNombre:r.nombre, deseos:r.deseos||[] };
+  });
+  payload['meta/estado'] = 'sorteado';
+  // quitar onDisconnect (ya no liberar al desconectarse)
+  await update(ref(db,'salas/'+sala), payload);
+}
+
+// derangement: nadie se asigna a sí mismo
+function derangement(arr){
+  for(let intento=0;intento<800;intento++){
+    const r=[...arr];
+    for(let i=r.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[r[i],r[j]]=[r[j],r[i]];}
+    if(arr.every((p,i)=>p.uid!==r[i].uid)) return r;
+  }
+  return null;
+}
+
+/* ---------- Resultado ---------- */
+function mostrarResultado(a){
+  $('resNombre').textContent = miNombre;
+  $('resAmigo').textContent = a.paraNombre;
+  const ul=$('resDeseos'); ul.innerHTML="";
+  (a.deseos&&a.deseos.length?a.deseos:["Cualquier detalle 🙂"]).forEach((d,i)=>{
+    const li=document.createElement('li'); li.innerHTML=`<b>${i+1}.</b> ${escapeHtml(d)}`; ul.appendChild(li);
+  });
+  ver('scrResultado');
+}
+function revelar(){ $('preReveal').classList.add('hidden'); $('revealBox').classList.remove('hidden'); confetti(); }
+
+/* ---------- utilidades ---------- */
+function escapeHtml(s){return (s||"").replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function copiarCodigo(){ navigator.clipboard?.writeText(sala); }
+function confetti(){
+  const cols=['#b02a37','#f4c542','#157347','#dc3545','#e0a800','#fff'];
+  for(let i=0;i<70;i++){
+    const c=document.createElement('div'); c.className='confetti';
+    c.style.left=Math.random()*100+'vw';
+    c.style.background=cols[Math.floor(Math.random()*cols.length)];
+    c.style.animationDuration=(2+Math.random()*2)+'s';
+    c.style.animationDelay=Math.random()*0.6+'s';
+    c.style.transform='rotate('+Math.random()*360+'deg)';
+    document.body.appendChild(c); setTimeout(()=>c.remove(),4200);
+  }
+}
+/* nieve decorativa */
+(function(){const f="❄✦•·";const s=$('snow');for(let i=0;i<28;i++){const e=document.createElement('div');
+  e.className='flake';e.textContent=f[Math.floor(Math.random()*f.length)];
+  e.style.left=Math.random()*100+'vw';e.style.fontSize=(8+Math.random()*14)+'px';
+  e.style.animationDuration=(6+Math.random()*8)+'s';e.style.animationDelay=Math.random()*8+'s';
+  e.style.opacity=(.3+Math.random()*.5);s.appendChild(e);} })();
+
+/* exponer funciones a los onclick */
+Object.assign(window,{crearSala,unirseSala,registrarme,hacerSorteo,revelar,copiarCodigo});
+</script>
+</body>
+</html>
